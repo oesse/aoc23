@@ -34,11 +34,30 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    const day2_1 = b.addExecutable(.{
+        .name = "aoc23_day2_1",
+        // In this case the main source file is merely a path, however, in more
+        // complicated build scripts, this could be a generated file.
+        .root_source_file = .{ .path = "src/day2_1.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+    const day2_2 = b.addExecutable(.{
+        .name = "aoc23_day2_2",
+        // In this case the main source file is merely a path, however, in more
+        // complicated build scripts, this could be a generated file.
+        .root_source_file = .{ .path = "src/day2_2.zig" },
+        .target = target,
+        .optimize = optimize,
+    });
+
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
     // step when running `zig build`).
     b.installArtifact(exe);
     b.installArtifact(day1_2);
+    b.installArtifact(day2_1);
+    b.installArtifact(day2_2);
 
     // This *creates* a Run step in the build graph, to be executed when another
     // step is evaluated that depends on it. The next line below will establish

@@ -53,11 +53,13 @@ pub fn main() !void {
         for (0..table.columns) |j| {
             // First find symbols.
             const c = table.cell(i, j);
-            if (std.ascii.isDigit(c) or c == '.') {
+            if (c != '*') {
                 continue;
             }
 
-            // try stdout.print("Symbol '{c}' at: {d}, {d}\n", .{ c, i, j });
+            var num_count: u32 = 0;
+            var gear_ratio: u32 = 1;
+
             for (i - 1..i + 2) |u| {
                 if (u < 0 or u >= table.rows) {
                     continue;
@@ -69,14 +71,20 @@ pub fn main() !void {
                     var dend: usize = undefined;
                     if (std.ascii.isDigit(row[dstart])) {
                         const digits = findDigits(row, dstart, &dstart, &dend);
-                        try stdout.print("Number '{s}' at: {d}, {d}-{d}\n", .{ digits, u, dstart, dend });
-                        const num = try std.fmt.parseInt(u32, row[dstart..dend], 10);
-                        sum += num;
+                        const num = try std.fmt.parseInt(u32, digits, 10);
+                        num_count += 1;
+                        gear_ratio *= num;
+
                         dstart = dend + 1;
                     } else {
                         dstart += 1;
                     }
                 }
+            }
+
+            if (num_count == 2) {
+                try stdout.print("ratio {d}\n", .{gear_ratio});
+                sum += gear_ratio;
             }
         }
     }
@@ -126,33 +134,4 @@ fn findDigits(row: []const u8, pos: usize, start: *usize, end: *usize) []const u
         end.* += 1;
     }
     return row[start.*..end.*];
-}
-
-const testing = std.testing;
-const eql = std.mem.eql;
-
-test "expand digits" {
-    const row: []const u8 = "467..";
-    const j = 2;
-    var start: usize = undefined;
-    var end: usize = undefined;
-    const digits: []const u8 = findDigits(row, j, &start, &end);
-
-    try testing.expect(eql(u8, "467", digits));
-    try testing.expect(0 == start);
-    try testing.expect(3 == end);
-}
-
-test "expand digits 2" {
-    const row: []const u8 = "..35..";
-    const j = 2;
-    var start: usize = undefined;
-    var end: usize = undefined;
-    const digits: []const u8 = findDigits(row, j, &start, &end);
-
-    std.debug.print("\nstart {d} end {d} '{s}'\n", .{ start, end, digits });
-
-    try testing.expect(eql(u8, "35", digits));
-    try testing.expect(2 == start);
-    try testing.expect(4 == end);
 }
